@@ -5,7 +5,8 @@
     }
   },
   "env": {
-    "DATABASE_URL": "@database_url"
+    "DATABASE_URL": "file:./dev.db"
+    
   }
 }
 
