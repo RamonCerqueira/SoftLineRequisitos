@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id              Int       @id @default(autoincrement())
+  nomeEmpresa     String    @map("nome_empresa") @db.VarChar(255)
+  nomeContato     String    @map("nome_contato") @db.VarChar(255)
+  emailContato    String    @map("email_contato") @db.VarChar(255)
+  telefoneContato String?   @map("telefone_contato") @db.VarChar(20)
+  dataCriacao     DateTime  @default(now()) @map("data_criacao")
+  
+  projetos        Projeto[]
+  
+  @@map("clientes")
+}
+
+model Projeto {
+  id                      Int       @id @default(autoincrement())
+  clienteId               Int       @map("cliente_id")
+  nomeSoftware            String?   @map("nome_software") @db.VarChar(255)
+  descricaoIdeia          String    @map("descricao_ideia") @db.Text
+  problemasResolvidos     String    @map("problemas_resolvidos") @db.Text
+  publicoAlvo             String    @map("publico_alvo") @db.Text
+  tecnologiasPreferenciais String?  @map("tecnologias_preferenciais") @db.Text
+  observacoesAdicionais   String?   @map("observacoes_adicionais") @db.Text
+  dataCriacao             DateTime  @default(now()) @map("data_criacao")
+  
+  cliente                 Cliente   @relation(fields: [clienteId], references: [id])
+  requisitosFuncionais    RequisitoFuncional[]
+  requisitosNaoFuncionais RequisitoNaoFuncional[]
+  
+  @@map("projetos")
+}
+
+model RequisitoFuncional {
+  id          Int       @id @default(autoincrement())
+  projetoId   Int       @map("projeto_id")
+  descricao   String    @db.Text
+  prioridade  String    @db.VarChar(50) @default("Media")
+  dataCriacao DateTime  @default(now()) @map("data_criacao")
+  
+  projeto     Projeto   @relation(fields: [projetoId], references: [id])
+  
+  @@map("requisitos_funcionais")
+}
+
+model RequisitoNaoFuncional {
+  id          Int       @id @default(autoincrement())
+  projetoId   Int       @map("projeto_id")
+  tipo        String    @db.VarChar(100)
+  descricao   String    @db.Text
+  dataCriacao DateTime  @default(now()) @map("data_criacao")
+  
+  projeto     Projeto   @relation(fields: [projetoId], references: [id])
+  
+  @@map("requisitos_nao_funcionais")
+}
